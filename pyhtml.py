@@ -232,7 +232,7 @@ class Parser:
         #self._block_stack.append(self._current_block)
         self._parent_block: list = []
 
-    def get_fncs(self, fnc_name, skip_first=False, current_pos=0):
+    def get_fncs(self, fnc_name):
         fncs: list = []
         rule_fnc = getattr(self, fnc_name, None)
         if rule_fnc is None:
