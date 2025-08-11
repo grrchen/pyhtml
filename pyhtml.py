@@ -394,6 +394,11 @@ class Parser:
         "UNINDENT HTML_ELEMENT r_html_element_attribute COLON NEWLINE"
         self.unindent(t[0].token, HTMLElement(t[0].token, t[1].token))
 
+    def r_html_element19(self, t):
+        "HTML_ELEMENT r_html_element_attribute COLON NEWLINE r_html_element_body"
+        self._current_block = HTMLElement("", t[0].token)
+        self._block_stack.append(self._current_block)
+
     def r_html_element8(self, t):
         "HTML_ELEMENT COLON NEWLINE"
         self._current_block = HTMLElement("", t[0].token)

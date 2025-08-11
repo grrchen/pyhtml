@@ -91,6 +91,28 @@ test123
 </div1>"""
 
 
+def test_compiler__html_element_body_after_attributes1():
+    src: str = """div class="window" style="position: absolute; left: 10px; top 10px;":
+    << "textline"
+    div class="title":
+        << "another textline"
+    << "multi
+line
+text"
+"""
+
+    html = compile_pyhtml(src)
+    assert html == """<div class='window' style='position: absolute; left: 10px; top 10px;'>
+textline
+    <div class='title'>
+another textline
+    </div>
+multi
+line
+text
+</div>"""
+
+
 def test_compiler_text1():
     src: str = """div1:
     << "test123456"
