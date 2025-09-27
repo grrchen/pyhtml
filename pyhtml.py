@@ -332,27 +332,32 @@ class Parser:
                     raise SyntaxError(token)
 
     def indent(self, indent, t):
-
         if isinstance(t, HTMLElement):
             new_block = t
             self._current_block.append(new_block)
-            self._parent_block.append(self._current_block)
+            if len(indent) > self._current_indent:
+                self._parent_block.append(self._current_block)
             self._current_block = new_block
+            # Only an HTML element is allowed to change the current indentation level!
             self._current_indent = len(indent)
         else:
             self._current_block.append(t)
 
     def unindent(self, indent, t):
-        #print("new unindent:", t)
-        if self._parent_block:
-            self._current_block = self._parent_block.pop()
+        unindents: int = int((self._current_indent - len(indent)) / 4)
+        if unindents > 0:
+            for i in range(unindents):
+                if self._parent_block:
+                    self._current_block = self._parent_block.pop()
+        self._current_indent = len(indent)
+        if len(self._parent_block) > 0:
+            self._current_block = self._parent_block[-1]
         if isinstance(t, HTMLElement):
             new_block = t
             self._current_block.append(new_block)
             self._current_block = new_block
         else:
             self._current_block.append(t)
-        self._current_indent = len(indent)
 
     def r_html_element(self, t):
         "HTML_ELEMENT COLON NEWLINE r_html_element"
@@ -428,7 +433,7 @@ class Parser:
 
     def r_html_element11(self, t):
         "UNINDENT HTML_ELEMENT r_html_element_attribute COLON NEWLINE r_html_element_body"
-        self.indent(t[0].token, HTMLElement(t[0].token, t[1].token))
+        self.unindent(t[0].token, HTMLElement(t[0].token, t[1].token))
 
     def r_html_element_attribute1(self, t):
         "ATTRIBUTE ASSIGMENT VALUE r_html_element_attribute"
@@ -444,7 +449,7 @@ class Parser:
 
     def r_html_element6(self, t):
         "INDENT HTML_ELEMENT COLON NEWLINE"
-        self.unindent(t[0].token, HTMLElement(t[0].token, t[1].token))
+        self.indent(t[0].token, HTMLElement(t[0].token, t[1].token))
 
     def r_html_element7(self, t):
         "UNINDENT HTML_ELEMENT COLON NEWLINE"
